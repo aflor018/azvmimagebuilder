@@ -22,7 +22,7 @@ function Write-Log {
 
 #region Notepad++
 try {
-    Start-Process -filepath 'c:\temp\npp.7.8.8.Installer.x64.exe' -Wait -ErrorAction Stop -ArgumentList '/S'
+    Start-Process -filepath 'c:\temp\npp.8.1.2.Installer.x64.exe' -Wait -ErrorAction Stop -ArgumentList '/S'
     Copy-Item 'C:\temp\config.model.xml' 'C:\Program Files\Notepad++'
     Rename-Item 'C:\Program Files\Notepad++\updater' 'C:\Program Files\Notepad++\updaterOld'
     if (Test-Path "C:\Program Files\Notepad++\notepad++.exe") {
