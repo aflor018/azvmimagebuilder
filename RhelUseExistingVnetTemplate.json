@@ -1,0 +1,108 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "imageTemplateName": {
+            "type": "string"
+        },
+        "api-version": {
+            "type": "string"
+        },
+        "svclocation": {
+            "type": "string"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "name": "[parameters('imageTemplateName')]",
+            "type": "Microsoft.VirtualMachineImages/imageTemplates",
+            "apiVersion": "[parameters('api-version')]",
+            "location": "[parameters('svclocation')]",
+            "dependsOn": [],
+            "tags": {
+                "imagebuilderTemplate": "AzureVMImageBuilderVNET",
+                "userIdentity": "enabled"
+            },
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "<imgBuilderId>": {}
+
+                }
+            },
+            "properties": {
+
+                "buildTimeoutInMinutes": 80,
+
+                "vmProfile": {
+                    "vmSize": "Standard_D2_v2",
+                    "osDiskSizeGB": 30,
+                    "vnetConfig": {
+                        "subnetId": "/subscriptions/<subscriptionID>/resourceGroups/<vnetRgName>/providers/Microsoft.Network/virtualNetworks/<vnetName>/subnets/<subnetName>"
+                    }
+                },
+
+                "source": {
+                    "type": "PlatformImage",
+                    "publisher": "RedHat",
+                    "offer": "RHEL",
+                    "sku": "7-LVM",
+                    "version": "latest"
+
+                },
+                "customize": [
+                    {
+                        "type": "Shell",
+                        "name": "RunScriptFromSource",
+                        "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/quickquickstarts/customizeScript.sh"
+                    },
+
+                    {
+                        "type": "Shell",
+                        "name": "CheckSumCompareShellScript",
+                        "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/quickquickstarts/customizeScript2.sh",
+                        "sha256Checksum": "ade4c5214c3c675e92c66e2d067a870c5b81b9844b3de3cc72c49ff36425fc93"
+                    },
+
+                    {
+                        "type": "File",
+                        "name": "downloadBuildArtifacts",
+                        "sourceUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/quickquickstarts/exampleArtifacts/buildArtifacts/index.html",
+                        "destination": "/tmp/index.html"
+                    },
+
+                    {
+                        "type": "Shell",
+                        "name": "setupBuildPath",
+                        "inline": [
+                            "sudo mkdir /buildArtifacts",
+                            "sudo cp /tmp/index.html /buildArtifacts/index.html"
+                        ]
+                    },
+
+                    {
+                        "type": "Shell",
+                        "name": "InstallUpgrades",
+                        "inline": [
+                            "sudo apt install unattended-upgrades"
+                        ]
+                    }
+
+                ],
+                "distribute": [
+                    {
+                        "type": "ManagedImage",
+                        "imageId": "/subscriptions/<subscriptionID>/resourceGroups/<rgName>/providers/Microsoft.Compute/images/<imageName>",
+                        "location": "<region>",
+                        "runOutputName": "<runOutputName>",
+                        "artifactTags": {
+                            "source": "azVmImageBuilder",
+                            "baseosimg": "ubuntu1804"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
