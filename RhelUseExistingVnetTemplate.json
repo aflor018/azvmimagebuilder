@@ -5,6 +5,9 @@
         "imageTemplateName": {
             "type": "string"
         },
+        "api-version": {
+            "type": "string"
+        },
         "svclocation": {
             "type": "string"
         }
@@ -14,7 +17,7 @@
         {
             "name": "[parameters('imageTemplateName')]",
             "type": "Microsoft.VirtualMachineImages/imageTemplates",
-            "apiVersion": "2020-02-14",
+            "apiVersion": "[parameters('api-version')]",
             "location": "[parameters('svclocation')]",
             "dependsOn": [],
             "tags": {
@@ -51,39 +54,8 @@
                 "customize": [
                     {
                         "type": "Shell",
-                        "name": "RunScriptFromSource",
-                        "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/quickquickstarts/customizeScript.sh"
-                    },
-
-                    {
-                        "type": "Shell",
-                        "name": "CheckSumCompareShellScript",
-                        "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/quickquickstarts/customizeScript2.sh",
-                        "sha256Checksum": "ade4c5214c3c675e92c66e2d067a870c5b81b9844b3de3cc72c49ff36425fc93"
-                    },
-
-                    {
-                        "type": "File",
-                        "name": "downloadBuildArtifacts",
-                        "sourceUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/quickquickstarts/exampleArtifacts/buildArtifacts/index.html",
-                        "destination": "/tmp/index.html"
-                    },
-
-                    {
-                        "type": "Shell",
-                        "name": "setupBuildPath",
-                        "inline": [
-                            "sudo mkdir /buildArtifacts",
-                            "sudo cp /tmp/index.html /buildArtifacts/index.html"
-                        ]
-                    },
-
-                    {
-                        "type": "Shell",
-                        "name": "InstallUpgrades",
-                        "inline": [
-                            "sudo apt install unattended-upgrades"
-                        ]
+                        "name": "createDirectory",
+                        "inline": [ "sudo mkdir /testDirectory" ]
                     }
 
                 ],
